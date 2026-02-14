@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.example.application.navigation.AppNavGraph
+import com.example.application.ui.main.MainScreen
 import com.example.application.ui.theme.ApplicationTheme
 
 class MainActivity : ComponentActivity() {
@@ -17,10 +18,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            ApplicationTheme {
-                val navController = rememberNavController()
-                AppNavGraph(navController)
-            }
+            MainScreen()
         }
     }
 }

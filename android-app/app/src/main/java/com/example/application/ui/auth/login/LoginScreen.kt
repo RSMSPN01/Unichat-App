@@ -1,6 +1,7 @@
 package com.example.application.ui.auth.login
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -11,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
@@ -29,20 +31,44 @@ fun LoginScreen(navController: NavHostController) {
 
     var passwordVisible by remember { mutableStateOf(false) }
 
+    fun performLogin() {
+
+        val cleanedEmail = email.trim()
+
+        val emailValid =
+            cleanedEmail.endsWith("@chitkarauniversity.edu.in")
+
+        val passwordValid =
+            password.length >= 8 &&
+                    password.any { it.isUpperCase() } &&
+                    password.any { it.isLowerCase() } &&
+                    password.any { it.isDigit() } &&
+                    password.any { !it.isLetterOrDigit() }
+
+        emailError = !emailValid
+        passwordError = !passwordValid
+
+        if (emailValid && passwordValid) {
+            focusManager.clearFocus()
+            navController.navigate("home")
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
+            .padding(horizontal = 28.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
         Text(
-            text = "Login",
-            style = MaterialTheme.typography.headlineMedium
+            text = "Welcome Back",
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onBackground
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(40.dp))
 
         // EMAIL FIELD
         OutlinedTextField(
@@ -53,6 +79,7 @@ fun LoginScreen(navController: NavHostController) {
             },
             label = { Text("University Email") },
             singleLine = true,
+            shape = RoundedCornerShape(18.dp),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Email,
                 imeAction = ImeAction.Next
@@ -61,17 +88,24 @@ fun LoginScreen(navController: NavHostController) {
                 onNext = { focusManager.moveFocus(FocusDirection.Down) }
             ),
             isError = emailError,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color.Black,
+                unfocusedBorderColor = Color.Gray,
+                cursorColor = Color.Black
+            ),
             modifier = Modifier.fillMaxWidth()
         )
 
         if (emailError) {
+            Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = "Email must end with @chitkarauniversity.edu.in",
-                color = MaterialTheme.colorScheme.error
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         // PASSWORD FIELD
         OutlinedTextField(
@@ -82,6 +116,7 @@ fun LoginScreen(navController: NavHostController) {
             },
             label = { Text("Password") },
             singleLine = true,
+            shape = RoundedCornerShape(18.dp),
             visualTransformation =
                 if (passwordVisible) VisualTransformation.None
                 else PasswordVisualTransformation(),
@@ -102,56 +137,52 @@ fun LoginScreen(navController: NavHostController) {
                 imeAction = ImeAction.Done
             ),
             keyboardActions = KeyboardActions(
-                onDone = { focusManager.clearFocus() }
+                onDone = { performLogin() }
             ),
             isError = passwordError,
+            colors = OutlinedTextFieldDefaults.colors(
+                unfocusedTextColor = Color.Black,
+                focusedBorderColor = Color.Black,
+                unfocusedBorderColor = Color.Gray,
+                cursorColor = Color.Black
+            ),
             modifier = Modifier.fillMaxWidth()
         )
 
         if (passwordError) {
+            Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = "Password must be 8+ chars, include upper, lower, digit & special character",
-                color = MaterialTheme.colorScheme.error
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
             )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(36.dp))
 
         Button(
-            onClick = {
-
-                val cleanedEmail = email.trim()
-
-                val emailValid =
-                    cleanedEmail.endsWith("@chitkarauniversity.edu.in")
-
-                val passwordValid =
-                    password.length >= 8 &&
-                            password.any { it.isUpperCase() } &&
-                            password.any { it.isLowerCase() } &&
-                            password.any { it.isDigit() } &&
-                            password.any { !it.isLetterOrDigit() }
-
-                emailError = !emailValid
-                passwordError = !passwordValid
-
-                if (emailValid && passwordValid) {
-                    navController.navigate("home")
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
+            onClick = { performLogin() },
+            shape = RoundedCornerShape(22.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(54.dp)
         ) {
             Text("Login")
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         TextButton(
-            onClick = {
-                navController.navigate("signup")
-            }
+            onClick = { navController.navigate("signup") }
         ) {
-            Text("Don't have an account? Sign Up")
+            Text(
+                text = "Don't have an account? Sign Up",
+                color = MaterialTheme.colorScheme.primary
+            )
         }
     }
 }
