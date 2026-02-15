@@ -1,6 +1,5 @@
 package com.example.application.ui.search
 
-
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.application.ui.navigation.BottomScreen
 import com.example.application.ui.viewmodel.AppViewModel
 
 @Composable
@@ -37,25 +35,20 @@ fun SearchScreen(
 ) {
 
     var query by remember { mutableStateOf("") }
-    var searchHistory by remember { mutableStateOf(listOf<String>()) }
     var showDialog by remember { mutableStateOf(false) }
 
-    val users = List(50) { "User $it" }
+    val users = viewModel.getUsers()
 
     val filteredUsers = if (query.isNotBlank()) {
         users.filter {
-            it.contains(
-                query,
-                ignoreCase = true
-            )
+            it.username.contains(query, ignoreCase = true)
+                    && it.id != viewModel.currentUserId
         }
-    } else {
-        emptyList()
-    }
+    } else emptyList()
+
 
     Column {
 
-        // 🔍 SEARCH BAR
         OutlinedTextField(
             value = query,
             onValueChange = { query = it },
@@ -65,7 +58,7 @@ fun SearchScreen(
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Search,
-                    contentDescription = "Search"
+                    contentDescription = null
                 )
             },
             trailingIcon = {
@@ -73,7 +66,7 @@ fun SearchScreen(
                     IconButton(onClick = { query = "" }) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = "Clear"
+                            contentDescription = null
                         )
                     }
                 }
@@ -83,27 +76,21 @@ fun SearchScreen(
                 .padding(16.dp)
         )
 
-        // 🔥 IF TYPING → SHOW RESULTS
         if (query.isNotBlank()) {
 
             LazyColumn {
                 items(filteredUsers) { user ->
 
                     Text(
-                        text = user,
+                        text = user.username,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp)
                             .clickable {
 
-                                // Add to history if not exists
-                                if (!searchHistory.contains(user)) {
-                                    searchHistory = listOf(user) + searchHistory
-                                }
+                                viewModel.addSearchQuery(user.id)
 
-                                navController.navigate(
-                                    BottomScreen.Profile.createRoute(user)
-                                )
+                                navController.navigate("profile/${user.id}")
                             }
                     )
                 }
@@ -111,8 +98,7 @@ fun SearchScreen(
 
         } else {
 
-            // 🔥 SHOW HISTORY
-            if (searchHistory.isNotEmpty()) {
+            if (viewModel.searchHistory.isNotEmpty()) {
 
                 Row(
                     modifier = Modifier
@@ -131,7 +117,7 @@ fun SearchScreen(
                 }
 
                 LazyColumn {
-                    items(searchHistory) { item ->
+                    items(viewModel.searchHistory) { userId ->
 
                         Row(
                             modifier = Modifier
@@ -141,23 +127,20 @@ fun SearchScreen(
                         ) {
 
                             Text(
-                                text = item,
+                                text = userId,
                                 modifier = Modifier.clickable {
-                                    navController.navigate(
-                                        BottomScreen.Profile.createRoute(item)
-                                    )
+                                    navController.navigate("profile/$userId")
                                 }
                             )
 
                             IconButton(
                                 onClick = {
-                                    searchHistory =
-                                        searchHistory.filter { it != item }
+                                    viewModel.removeSearchQuery(userId)
                                 }
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
-                                    contentDescription = "Remove"
+                                    contentDescription = null
                                 )
                             }
                         }
@@ -167,13 +150,12 @@ fun SearchScreen(
         }
     }
 
-    // 🔥 CONFIRM DIALOG
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
             confirmButton = {
                 TextButton(onClick = {
-                    searchHistory = emptyList()
+                    viewModel.clearSearchHistory()
                     showDialog = false
                 }) {
                     Text("Yes")
@@ -189,4 +171,3 @@ fun SearchScreen(
         )
     }
 }
-

@@ -21,6 +21,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import com.example.application.model.Message
+
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -112,32 +114,59 @@ fun ChatDetailScreen(
 fun MessageBubble(message: Message) {
 
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = if (message.isMe)
-            Arrangement.End
-        else
-            Arrangement.Start
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement =
+            if (message.isMe) Arrangement.End
+            else Arrangement.Start
     ) {
 
-        Box(
-            modifier = Modifier
-                .widthIn(max = 280.dp)
-                .background(
-                    color = if (message.isMe)
-                        MaterialTheme.colorScheme.primary
-                    else
-                        MaterialTheme.colorScheme.surfaceVariant,
-                    shape = RoundedCornerShape(16.dp)
-                )
-                .padding(12.dp)
+        Column(
+            horizontalAlignment =
+                if (message.isMe) Alignment.End
+                else Alignment.Start
         ) {
+
+            Box(
+                modifier = Modifier
+                    .widthIn(max = 280.dp)
+                    .background(
+                        color =
+                            if (message.isMe)
+                                MaterialTheme.colorScheme.primary
+                            else
+                                MaterialTheme.colorScheme.surfaceVariant,
+                        shape = RoundedCornerShape(20.dp)
+                    )
+                    .padding(horizontal = 14.dp, vertical = 10.dp)
+            ) {
+                Text(
+                    text = message.text,
+                    color =
+                        if (message.isMe)
+                            MaterialTheme.colorScheme.onPrimary
+                        else
+                            MaterialTheme.colorScheme.onSurface
+                )
+            }
+
+            Spacer(modifier = Modifier.height(2.dp))
+
             Text(
-                text = message.text,
-                color = if (message.isMe)
-                    MaterialTheme.colorScheme.onPrimary
-                else
-                    MaterialTheme.colorScheme.onSurface
+                text = message.timestamp.toTimeString(),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+
+
         }
     }
 }
+fun Long.toTimeString(): String {
+    return SimpleDateFormat(
+        "HH:mm:ss",
+        Locale.getDefault()
+    ).format(Date(this))
+}
+

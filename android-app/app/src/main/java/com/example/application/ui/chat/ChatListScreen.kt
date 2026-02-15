@@ -17,13 +17,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.application.ui.viewmodel.AppViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun ChatListScreen(
     navController: NavController,
     viewModel: AppViewModel
 ) {
-    val followingUsers = viewModel.getFollowingUsers()
+    val users = viewModel.getSortedChatUsers()
 
     Column(modifier = Modifier.fillMaxSize()) {
 
@@ -33,7 +36,7 @@ fun ChatListScreen(
             modifier = Modifier.padding(16.dp)
         )
 
-        if (followingUsers.isEmpty()) {
+        if (users.isEmpty()) {
 
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -45,7 +48,7 @@ fun ChatListScreen(
         } else {
 
             LazyColumn {
-                items(followingUsers) { user ->
+                items(users) { user ->
 
                     val lastMessage = viewModel.getLastMessage(user)
 
@@ -72,11 +75,16 @@ fun ChatListScreen(
                                 maxLines = 1
                             )
                         }
+                        val formattedTime = lastMessage?.timestamp?.let {
+                            SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+                                .format(Date(it))
+                        } ?: ""
 
                         Text(
-                            text = lastMessage?.time ?: "",
+                            text = formattedTime,
                             style = MaterialTheme.typography.bodySmall
                         )
+
                     }
                 }
             }

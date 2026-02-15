@@ -37,11 +37,18 @@ fun BottomNavigationBar(navController: NavHostController) {
                 selected = currentDestination?.route == screen.route,
                 onClick = {
 
-                    navController.navigate(screen.route) {
+                    val route = if (screen.route == BottomScreen.Profile.route) {
+                        "profile/user_0" // temporary hardcoded
+                    } else {
+                        screen.route
+                    }
+
+                    navController.navigate(route) {
                         popUpTo(navController.graph.startDestinationId)
                         launchSingleTop = true
                     }
                 }
+
             )
         }
     }
