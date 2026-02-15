@@ -29,8 +29,10 @@ sealed class BottomScreen(
     )
 
     object Profile : BottomScreen(
-        route = "profile",
+        route = "profile/{username}",
         title = "Profile",
         icon = Icons.Default.Person
-    )
+    ) {
+        fun createRoute(username: String) = "profile/$username"
+    }
 }
